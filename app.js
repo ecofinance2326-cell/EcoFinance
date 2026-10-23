@@ -213,9 +213,9 @@ function authView(){
  '<h1>Pembukuan sederhana, jejak karbon terhitung.</h1><p>Catat pemasukan dan pengeluaran, hitung emisi dari listrik, gas, dan BBM, lalu unduh satu laporan PDF yang menyatukan keduanya.</p>'+
  '<ul class="feat"><li><span class="dot">'+icon('book',18)+'</span>Buku kas harian untuk warung, kios, dan usaha rumahan</li><li><span class="dot">'+icon('leaf',18)+'</span>Emisi karbon dihitung otomatis dalam kg CO₂e</li><li><span class="dot">'+icon('doc',18)+'</span>Laporan laba rugi dan karbon dalam satu PDF</li></ul>'+
  '<svg class="rings" viewBox="0 0 340 340" fill="none" stroke="#7fe3b0" stroke-width="1.5" aria-hidden="true"><circle cx="170" cy="170" r="60"/><circle cx="170" cy="170" r="110"/><circle cx="170" cy="170" r="160"/></svg></section>'+
- '<section class="auth-form card"><div><h2>'+(up?'Buat akun EcoFinance':'Masuk ke EcoFinance')+'</h2><p class="sub">Pilih akun yang paling mudah Anda pakai.</p></div>'+
- ['Google','Apple','Facebook'].map(p=>'<button class="sbtn" data-act="login" data-p="'+p+'">'+PROV[p]+'<span>Lanjutkan dengan '+(p==='Apple'?'Apple (iCloud)':p)+'</span></button>').join('')+
- '<div class="or"><span>atau dengan email</span></div>'+
+ '<section class="auth-form card"><div><h2>'+(up?'Buat akun EcoFinance':'Masuk ke EcoFinance')+'</h2><p class="sub">'+(up?'Pilih cara membuat akun.':'Masuk menggunakan email dan kata sandi.')+'</p></div>'+
+ (up?['Google','Apple','Facebook'].map(p=>'<button class="sbtn" data-act="login" data-p="'+p+'">'+PROV[p]+'<span>Daftar dengan '+(p==='Apple'?'Apple (iCloud)':p)+'</span></button>').join(''):'')+
+ (up?'<div class="or"><span>atau daftar dengan email</span></div>':'')+
  '<form data-form="login" style="display:grid;gap:12px">'+(up?'<div class="field"><label for="nm">Nama</label><input id="nm" name="name" autocomplete="name" placeholder="Nama Anda" maxlength="60"></div>':'')+
  '<div class="field"><label for="em">Email</label><input id="em" name="email" type="email" autocomplete="email" placeholder="nama@usaha.com" required></div>'+
  '<div class="field"><label for="pw">Kata sandi</label><input id="pw" name="password" type="password" autocomplete="'+(up?'new-password':'current-password')+'" minlength="'+(CLOUD?8:4)+'" required></div>'+
@@ -310,6 +310,7 @@ function akunView(){
   '<section class="card" style="display:grid;gap:14px;max-width:560px"><div class="field"><label for="bn">Nama usaha</label><input id="bn" data-bind="bizname" value="'+esc(S.biz.name)+'" maxlength="60"></div><div class="field"><label for="bs">Jenis usaha</label><input id="bs" data-bind="bizsector" value="'+esc(S.biz.sector)+'" maxlength="60"></div>'+
    '<div class="preview">'+icon('user',18)+'<span>'+esc(S.user.name)+(S.user.email?' · '+esc(S.user.email):'')+' · via '+esc(S.user.provider)+'</span></div><p class="muted small">'+(CLOUD?'Data tersimpan di akun Anda dan bisa dibuka dari perangkat mana pun.':'Mode demo: data tersimpan di peramban ini saja.')+'</p></section>'+
   (CLOUD&&S.user.provider==='Email'?'<section class="card" style="display:grid;gap:12px;max-width:560px"><h2 style="font-size:17px">Kata sandi</h2><div class="field"><label for="npw">Kata sandi baru</label><input id="npw" type="password" autocomplete="new-password" minlength="8"></div><div><button class="btn ghost" data-act="setpw">Simpan kata sandi</button></div></section>':'')+
+  (CLOUD?'<section class="card" style="display:grid;gap:12px;max-width:560px"><h2 style="font-size:17px;color:var(--danger)">Hapus akun</h2><p class="muted small">Menghapus akun akan menghapus akses akun EcoFinance. Tindakan ini tidak dapat dibatalkan.</p><div class="actions">'+(UI.confirm==='delete-account'?'<button class="btn danger" data-act="delete-account-confirm">Ya, hapus akun permanen</button><button class="btn ghost" data-act="delete-account-cancel">Batal</button>':'<button class="btn danger" data-act="delete-account">Hapus Akun</button>')+'</div></section>':'')+
   '<section class="card" style="display:grid;gap:12px;max-width:560px"><h2 style="font-size:17px">Data</h2><div class="actions">'+(empty?'<button class="btn ghost" data-act="demo">Muat data contoh</button>':'')+
    (UI.confirm==='wipe'?'<button class="btn danger" data-act="wipe">Yakin hapus semua?</button>':'<button class="btn danger" data-act="wipe">Hapus semua data</button>')+'<button class="btn ghost" data-act="logout">'+icon('out',18)+'Keluar</button></div></section>'}
 
@@ -438,7 +439,7 @@ async function doEmail(mode,email,pw,name){
 }
 app.addEventListener('click',async e=>{
   const el=e.target.closest('[data-act]'),act=el&&el.dataset.act;
-  if(UI.confirm&&act!=='del'&&act!=='delco'&&act!=='wipe'){UI.confirm=null;if(!act){render();return}}
+  if(UI.confirm&&act!=='del'&&act!=='delco'&&act!=='wipe'&&act!=='delete-account'&&act!=='delete-account-confirm'&&act!=='delete-account-cancel'){UI.confirm=null;if(!act){render();return}}
   if(!act||(S.busy&&(act==='del'||act==='delco')))return;
   if(act==='nav'){UI.view=el.dataset.v;render();window.scrollTo(0,0)}
   else if(act==='login'){await doOAuth(el.dataset.p)}
@@ -447,6 +448,16 @@ app.addEventListener('click',async e=>{
     const r=await sb.auth.resetPasswordForEmail(em,{redirectTo:location.origin+location.pathname});toast(r.error?'Gagal: '+r.error.message:'Tautan reset dikirim ke email Anda.',6000)}
   else if(act==='setpw'){const v=document.getElementById('npw').value;if(v.length<8){toast('Kata sandi minimal 8 karakter.');return}
     const r=await sb.auth.updateUser({password:v});toast(r.error?'Gagal: '+r.error.message:'Kata sandi diperbarui.');if(!r.error)document.getElementById('npw').value=''}
+  else if(act==='delete-account'){UI.confirm='delete-account';render()}
+  else if(act==='delete-account-cancel'){UI.confirm=null;render()}
+  else if(act==='delete-account-confirm'){
+    UI.confirm=null;S.busy=true;render();
+    try{const {data:{session}}=await sb.auth.getSession();
+      const r=await sb.functions.invoke('delete-account',{body:{},headers:{Authorization:'Bearer '+session.access_token}});
+      if(r.error)throw r.error;await sb.auth.signOut();S.user=null;S.ready=false;S.tx=[];S.co2=[];save();toast('Akun berhasil dihapus.');render();
+    }catch(err){toast('Penghapusan gagal. Pastikan Edge Function delete-account sudah dipasang di Supabase. '+(err.message||''),8000)}
+    finally{S.busy=false}
+  }
   else if(act==='logout'){if(CLOUD){await sb.auth.signOut()}else{S.user=null;save();render()}window.scrollTo(0,0)}
   else if(act==='tbl'){UI.tbl[el.dataset.k]=!UI.tbl[el.dataset.k];render()}
   else if(act==='del'||act==='delco'){const id=+el.dataset.id,tag=(act==='del'?'t':'c')+id;
