@@ -4,6 +4,6 @@
   Jika dibiarkan kosong, aplikasi berjalan dalam mode demo lokal tanpa login sungguhan.
 */
 window.ECOFINANCE_CONFIG = {
-  SUPABASE_URL: '',
-  SUPABASE_ANON_KEY: ''
+  SUPABASE_URL: 'https://occtmnbchlijdhcnyxik.supabase.co/rest/v1/',
+  SUPABASE_ANON_KEY: 'sb_publishable_lP-x0AcA8AQRMtFUmnlQiQ_JqOk6iok'
 };
