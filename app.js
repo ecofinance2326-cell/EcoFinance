@@ -16,7 +16,6 @@ const NOW=new Date();
 const ymd=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
 const TODAY=ymd(NOW), CUR=TODAY.slice(0,7);
 function lastMonths(n,end){end=end||CUR;const p=end.split('-').map(Number);const out=[];for(let i=n-1;i>=0;i--){const d=new Date(p[0],p[1]-1-i,1);out.push(d.getFullYear()+'-'+pad(d.getMonth()+1))}return out}
-function yearToDateMonths(sel){const p=CUR.split('-').map(Number),out=[];for(let m=1;m<=p[1];m++){const k=p[0]+'-'+pad(m);out.push('<option value="'+k+'"'+(k===sel?' selected':'')+'>'+mLabel(k)+(k===CUR?' (berjalan)':'')+'</option>')}return out.join('')}
 const mLabel=k=>{const p=k.split('-');return MONTHS[+p[1]-1]+' '+p[0]};
 const mShort=k=>MONTHS[+k.split('-')[1]-1];
 const fmtDate=s=>{const p=s.split('-');return +p[2]+' '+MONTHS[+p[1]-1]+' '+p[0]};
@@ -204,7 +203,7 @@ const tblBtn=id=>'<button class="btn ghost sm" data-act="tbl" data-k="'+id+'" ar
 const legendCash='<div class="legend"><span><i style="background:var(--s1)"></i>Pemasukan</span><span><i style="background:var(--s2)"></i>Pengeluaran</span></div>';
 
 /* ================= tampilan ================= */
-function monthOpts(sel,n){return yearToDateMonths(sel)}
+function monthOpts(sel,n){return lastMonths(n||12).reverse().map(k=>'<option value="'+k+'"'+(k===sel?' selected':'')+'>'+mLabel(k)+(k===CUR?' (berjalan)':'')+'</option>').join('')}
 function head(t,sub,extra){return '<div class="pagehead"><div><h1>'+t+'</h1><p class="sub">'+sub+'</p></div>'+(extra||'')+'</div>'}
 function demoBanner(){return S.demo&&!CLOUD?'<div class="banner"><span>Ini data contoh untuk '+esc(S.biz.name)+'. Hapus lalu catat usaha Anda sendiri.</span><button class="btn sm" data-act="cleardemo">Hapus data contoh</button></div>':''}
 
@@ -237,7 +236,7 @@ function berandaView(){
   const k=UI.month,t=totals([k]),it=intensity([k]),six=lastMonths(6),src=co2Src([k]),running=k===CUR;
   const margin=t.i>0?Math.round(t.net/t.i*100):0;
   const sub=running?'Bulan berjalan, sampai '+fmtDate(TODAY):'Ringkasan satu bulan penuh';
-  return head('Halo, '+esc(S.biz.name),sub+'.','<div class="field" style="min-width:180px"><label for="mb" class="lbl">Bulan</label><select id="mb" data-bind="month">'+yearToDateMonths(k)+'</select></div>')+demoBanner()+(!S.tx.length&&!S.co2.length?onboard():'')+
+  return head('Halo, '+esc(S.biz.name),sub+'.','<div class="field" style="min-width:180px"><label for="mb" class="lbl">Bulan</label><select id="mb" data-bind="month">'+monthOpts(k,12)+'</select></div>')+demoBanner()+(!S.tx.length&&!S.co2.length?onboard():'')+
   '<div class="kpis">'+
    '<div class="card kpi"><span class="eyebrow">Pemasukan</span><span class="v num">'+rp(t.i)+'</span><span class="muted small">'+mLabel(k)+'</span></div>'+
    '<div class="card kpi"><span class="eyebrow">Pengeluaran</span><span class="v num">'+rp(t.o)+'</span><span class="muted small">'+pct(t.o,t.i)+'% dari pemasukan</span></div>'+
@@ -291,7 +290,7 @@ function laporanView(){
   const P=periodInfo(UI.period),keys=P.keys,t=totals(keys),it=intensity(keys),ck=chartKeys(keys),src=co2Src(keys),tot=src.reduce((a,x)=>a+x.kg,0);
   const inC=catTotals(keys,'in'),outC=catTotals(keys,'out');
   const energy=outC.filter(c=>c.cat==='Listrik & air'||c.cat==='BBM & transport').reduce((a,c)=>a+c.v,0);
-  const periodOpts='<option value="3m"'+(UI.period==='3m'?' selected':'')+'>3 bulan terakhir</option><option value="6m"'+(UI.period==='6m'?' selected':'')+'>6 bulan terakhir</option>'+yearToDateMonths(UI.period);
+  const periodOpts='<option value="3m"'+(UI.period==='3m'?' selected':'')+'>3 bulan terakhir</option><option value="6m"'+(UI.period==='6m'?' selected':'')+'>6 bulan terakhir</option>'+lastMonths(6).reverse().map(k=>'<option value="'+k+'"'+(UI.period===k?' selected':'')+'>'+mLabel(k)+'</option>').join('');
   const rows=(arr,tot2)=>arr.map(c=>'<tr><td>'+esc(c.cat)+'</td><td class="r">'+rp(c.v)+'</td><td class="r">'+pct(c.v,tot2)+'%</td></tr>').join('')||'<tr><td colspan="3" class="muted">Tidak ada data</td></tr>';
   return head('Laporan terpadu','Keuangan dan jejak karbon dalam satu dokumen.','<div class="actions"><button class="btn" data-act="pdf">'+icon('down',18)+'Unduh PDF</button><button class="btn ghost" data-act="csv">'+icon('down',18)+'Unduh CSV</button></div>')+demoBanner()+
   '<div class="controls"><div class="field"><label class="lbl" for="pr">Periode laporan</label><select id="pr" data-bind="period">'+periodOpts+'</select></div></div>'+
