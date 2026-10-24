@@ -207,6 +207,8 @@ function monthOpts(sel,n){return lastMonths(n||12).reverse().map(k=>'<option val
 function head(t,sub,extra){return '<div class="pagehead"><div><h1>'+t+'</h1><p class="sub">'+sub+'</p></div>'+(extra||'')+'</div>'}
 function demoBanner(){return S.demo&&!CLOUD?'<div class="banner"><span>Ini data contoh untuk '+esc(S.biz.name)+'. Hapus lalu catat usaha Anda sendiri.</span><button class="btn sm" data-act="cleardemo">Hapus data contoh</button></div>':''}
 
+function legalFooter(){return '<footer class="legal-footer"><span>© ' + new Date().getFullYear() + ' EcoFinance</span><a href="privacy-policy.html">Kebijakan Privasi</a></footer>'}
+
 function authView(){
  const up=UI.authMode==='up';
  return '<div class="auth"><section class="auth-brand"><div class="brand-row">'+logo(48)+wordmark+'</div>'+
@@ -214,14 +216,14 @@ function authView(){
  '<ul class="feat"><li><span class="dot">'+icon('book',18)+'</span>Buku kas harian untuk warung, kios, dan usaha rumahan</li><li><span class="dot">'+icon('leaf',18)+'</span>Emisi karbon dihitung otomatis dalam kg CO₂e</li><li><span class="dot">'+icon('doc',18)+'</span>Laporan laba rugi dan karbon dalam satu PDF</li></ul>'+
  '<svg class="rings" viewBox="0 0 340 340" fill="none" stroke="#7fe3b0" stroke-width="1.5" aria-hidden="true"><circle cx="170" cy="170" r="60"/><circle cx="170" cy="170" r="110"/><circle cx="170" cy="170" r="160"/></svg></section>'+
  '<section class="auth-form card"><div><h2>'+(up?'Buat akun EcoFinance':'Masuk ke EcoFinance')+'</h2><p class="sub">'+(up?'Pilih cara membuat akun.':'Masuk menggunakan email dan kata sandi.')+'</p></div>'+
- (up?['Google','Apple','Facebook'].map(p=>'<button class="sbtn" data-act="login" data-p="'+p+'">'+PROV[p]+'<span>Daftar dengan '+(p==='Apple'?'Apple (iCloud)':p)+'</span></button>').join(''):'')+
+ (up?['Google'].map(p=>'<button class="sbtn" data-act="login" data-p="'+p+'">'+PROV[p]+'<span>Daftar dengan '+p+'</span></button>').join(''):'')+
  (up?'<div class="or"><span>atau daftar dengan email</span></div>':'')+
  '<form data-form="login" style="display:grid;gap:12px">'+(up?'<div class="field"><label for="nm">Nama</label><input id="nm" name="name" autocomplete="name" placeholder="Nama Anda" maxlength="60"></div>':'')+
  '<div class="field"><label for="em">Email</label><input id="em" name="email" type="email" autocomplete="email" placeholder="nama@usaha.com" required></div>'+
  '<div class="field"><label for="pw">Kata sandi</label><input id="pw" name="password" type="password" autocomplete="'+(up?'new-password':'current-password')+'" minlength="'+(CLOUD?8:4)+'" required></div>'+
  '<button class="btn" type="submit">'+(up?'Daftar':'Masuk')+'</button></form>'+
  '<p class="note">'+(up?'Sudah punya akun? <button class="link" data-act="authmode" data-m="in">Masuk</button>':'Belum punya akun? <button class="link" data-act="authmode" data-m="up">Daftar</button>'+(CLOUD?' · <button class="link" data-act="forgot">Lupa kata sandi?</button>':''))+'</p>'+
- (CLOUD?'':'<p class="note">Mode demo: Supabase belum diatur di config.js, jadi masuk dengan akun apa pun berhasil dan data tersimpan di peramban ini.</p>')+'</section></div>'}
+ (CLOUD?'':'<p class="note">Mode demo: Supabase belum diatur di config.js, jadi masuk dengan akun apa pun berhasil dan data tersimpan di peramban ini.</p>')+'</section></div>'+legalFooter()}
 
 const NAV=[['beranda','Beranda','home'],['transaksi','Kas','book'],['karbon','Karbon','leaf'],['laporan','Laporan','doc'],['akun','Akun','user']];
 function shell(content){
@@ -230,7 +232,7 @@ function shell(content){
     NAV.map(n=>'<button data-act="nav" data-v="'+n[0]+'"'+(UI.view===n[0]?' aria-current="page"':'')+'>'+icon(n[2])+(n[0]==='transaksi'?'Buku kas':n[1])+'</button>').join('')+'</nav>'+
     '<div class="userbox"><div class="avatar">'+ini+'</div><div class="who"><b>'+esc(S.user.name)+'</b><span class="muted small">'+esc(S.user.provider)+'</span></div></div></aside>'+
     '<div style="min-width:0"><header class="topbar"><div class="brand-row">'+logo(34)+wordmark+'</div><div class="avatar">'+ini+'</div></header><main id="main">'+content+'</main></div></div>'+
-    '<nav class="tabbar" aria-label="Menu utama">'+NAV.map(n=>'<button data-act="nav" data-v="'+n[0]+'"'+(UI.view===n[0]?' aria-current="page"':'')+'>'+icon(n[2],22)+'<span>'+n[1]+'</span></button>').join('')+'</nav>'}
+    '<nav class="tabbar" aria-label="Menu utama">'+NAV.map(n=>'<button data-act="nav" data-v="'+n[0]+'"'+(UI.view===n[0]?' aria-current="page"':'')+'>'+icon(n[2],22)+'<span>'+n[1]+'</span></button>').join('')+'</nav>'+legalFooter()}
 
 function berandaView(){
   const k=UI.month,t=totals([k]),it=intensity([k]),six=lastMonths(6),src=co2Src([k]),running=k===CUR;

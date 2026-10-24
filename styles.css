@@ -224,3 +224,9 @@ details summary{cursor:pointer;font-weight:600}
   .actions .btn{flex:1 1 100%}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+
+/* ---------- Footer legal ---------- */
+.legal-footer{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;padding:18px 16px 24px;color:var(--muted);font-size:12px;text-align:center}
+.legal-footer a{color:var(--brand);font-weight:700;text-decoration:none}
+.legal-footer a:hover{text-decoration:underline}
